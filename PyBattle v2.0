@@ -1,0 +1,494 @@
+"""PyBattle: The Basic Point Deduction Python Game | Python 3.3 | Created by Jeremiah Faison and Devan Cole | Special Thanks to ExXon^___O
+This is a build of PyBattle Version 1.x but remixed with a totally different architecture and infrastructure. """
+
+#Known Bugs (Will be PyBattle 2.0 B-1)
+# 1) Special Cards 1, 2 and 4 do not work due to the variable you_gain
+# 2) Card Store Improvements
+# 3) After every turn, both players HP is shown. Also before they enter the card store.
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------
+from time import sleep #Optimization of UI 
+Player1Hand = [] #This is the list for Player 1. Cards are added with the append function
+Player2Hand = [] #This is the list for Player 2. 
+p1_hp = 1000 #Each player gets 1000 health points
+p2_hp = 1000 #Same for Player 2
+p1_cp = 5000 #Each player gets 5000 cash points to buy cards 
+p2_cp = 5000 #Player 2
+#------------------------------------------------------------------
+def bar(): #Just something to separate the text. Optimization of UI
+        print ("--------------------------------------------------")
+#----------------Main Menu------------------------
+def manual(): #Instructions to play the game 
+        print ("OK. This is a two player game. Here is how the game works")
+        sleep(1)
+        print ("Both players get 1000 health points and 5000 cash points")
+        sleep(2)
+        print ("Health points are a way to tell whent the game is over")
+        print ("Cash points are used to buy cards")
+        sleep(2)
+        print ("After you enter names, player 1 will select 5 cards out of 3 categories")
+        sleep(2)
+        print ("Attack cards lower your opponents HP")
+        sleep(1)
+        print ("Defense cards raise your HP")
+        sleep(1)
+        print ("Special cards have their own effect")
+        sleep(2)
+        print ("After card selection is over, the game begins.")
+        print ("Starting with player 1, the players will go turn by turn playing cards")
+        sleep(2)
+        print ("Which ever card gets selected, determines what happens")
+        sleep(2)
+        print ("The game goes on as long as both players HP is above 0")
+        print ("Once a player hits zero or below zero the game will check for a winner")
+        sleep(3)
+        bar()
+        
+def changelog():
+    print ("Currrent Version: 2.0.0 Alpha")
+    print ("Version 2.0.0 Changes:\n Everything has been redesigned. Different architecture completely. ")
+    print ("Version 1.9.3 Changes:\n Main Menu added\n Unification of Tabs and Spaces\n Improvements to the Gameplay While Loop")
+    print ("Version 1.9.2 Changes:\n Card Store Improvements\n While loops to avoid error in selection \n Manual to let players skip the intro")
+    print ("Version 1.5.0 Changes:\n Card Store Added")
+    bar()
+    
+#Card Costs
+ac1c = 100; ac2c = 200; ac3c = 300; ac4c = 400; ac5c = 500
+dc1c = 100; dc2c = 200; dc3c = 300; dc4c = 400; dc5c = 500
+sc1c = 200; sc2c = 400; sc3c = 600; sc4c = 700; sc5c = 1500
+
+#--------------------Menus--------------------------        
+
+def acm(): #Attack Card Menu | Displays all attack cards
+        print("[1] Attack Card 1 | Value: 100 HP Cost: 100 CP")
+        print("[2] Attack Card 2 | Value: 150 HP Cost: 200 CP")
+        print("[3] Attack Card 3 | Value: 200 HP Cost: 300 CP")
+        print("[4] Attack Card 4 | Value: 250 HP Cost: 400 CP")
+        print("[5] Attack Card 5 | Value: 300 HP Cost: 500 CP")
+        bar()
+
+def dcm(): #Defense Card Menu
+        print("[1] Defense Card 1 | Value: 100 HP Cost: 100 CP")
+        print("[2] Defense Card 2 | Value: 150 HP Cost: 200 CP")
+        print("[3] Defense Card 3 | Value: 200 HP Cost: 300 CP")
+        print("[4] Defense Card 4 | Value: 250 HP Cost: 400 CP")
+        print("[5] Defense Card 5 | Value: 300 HP Cost: 500 CP")
+        bar()
+
+def scm(): #Special Card Menu
+    print("[1] Special Card 1 | 200 HP from opponent, Gives you 100 HP Cost: 200 CP")
+    print("[2] Special Card 2 | 300 HP from opponent, Gives you 150 HP Cost: 400 CP")
+    print("[3] Special Card 3 | Opponent HP will equal your HP Cost: 600")
+    print("[4] Special Card 4 | 500 HP from opponent, Gives you 500 HP Cost: 800 CP")
+    print("[5] Special Card 5 | Triple opponent's HP, add that to your HP Cost: 1000 CP")
+    bar()
+
+def cardselect(cardtype, player): #Card selection function. Args for player and type of card        
+        if player == 1: #player 1
+                player_hand = Player1Hand #all these vary
+                player_cash = p1_cp
+                player_name = player1
+                
+        if player == 2: #player 2
+                player_hand = Player2Hand #all these vary
+                player_cash = p2_cp
+                player_name = player2
+        
+        print (player_name, "select a(n) ", cardtype, " card")
+
+        if cardtype == "Attack":
+            acm()
+            selected = int(input())
+            card = "Attack Card " + str(selected)
+        else:
+            dcm()
+            selected = int(input())
+            card = "Defense Card " + str(selected)
+
+        player_hand.append(card) #add it to the players hand
+        player_cash -= 100 * selected
+        print (player_name, " now has ", str(player_cash), " CP left")
+
+def specialcardselect(player):
+        player_hand = Player1Hand
+        player_cash = p1_cp
+        player_name = player1
+
+        if player == 2:
+            player_hand = Player2Hand
+            player_cash = p2_cp
+            player_name = player2
+        
+        scm()
+        print (player_name, " select a Special Card")
+        spcl_select = int(input())
+        
+        if spcl_select == 1:
+                sp_card_name = "Special Card 1"
+                sp_card_cost = 200
+        if spcl_select == 2:
+                sp_card_name = "Special Card 2"
+                sp_card_cost = 400
+        if spcl_select == 3:
+                sp_card_name = "Special Card 3"
+                sp_card_cost = 600
+        if spcl_select == 4:
+                sp_card_name = "Special Card 4"
+                sp_card_cost = 800
+        if spcl_select == 5:
+                sp_card_name = "Special Card 5"
+                sp_card_cost = 1000
+        
+        player_hand.append(sp_card_name)
+        player_cash -= sp_card_cost
+        print (player_name, " now has ", str(player_cash), " cash points")
+
+def assign_vars(player): #After selecting cards, this function will assign variables to work for the arguments
+        global card1_d; global card2_d; global card3_d; global card4_d #So they can be used everywhere
+        global opp_damage; global you_gain # Fixes bug in Special Cards 1, 2, and 4
+        if player == 1:
+                playerHand = Player1Hand #Unifying all the variables.
+                if playerHand[0] == "Attack Card 1": #Slot 0 (attack)
+                        card1_d = 100    # What are these variables?  Why were they separate from card1, card2, card3? because I have to find a way to subtract a player's HP using args and I wanted to insert those so the code would be shorter did that make sense? I will evaluate these momentarily.  I am rearranging the work I have already done.
+                if playerHand[0] == "Attack Card 2":
+                        card1_d = 150 #All of these are to give the argument something to use. So this function is the key
+                if playerHand[0] == "Attack Card 3":
+                        card1_d = 200
+                if playerHand[0] == "Attack Card 4":
+                        card1_d = 250
+                if playerHand[0] == "Attack Card 5":
+                        card1_d = 300
+                        
+                if playerHand[1] == "Attack Card 1": #Slot 1 (attack)
+                        card2_d = 100
+                if playerHand[1] == "Attack Card 2":
+                        card2_d = 150
+                if playerHand[1] == "Attack Card 3":
+                        card2_d = 200
+                if playerHand[1] == "Attack Card 4":
+                        card2_d = 250
+                if playerHand[1] == "Attack Card 5":
+                        card2_d = 300
+                        
+                if playerHand[2] == "Defense Card 1": #Slot 2 (Defense)
+                        card3_d = 100
+                if playerHand[2] == "Defense Card 2":
+                        card3_d = 150
+                if playerHand[2] == "Defense Card 3":
+                        card3_d = 200
+                if playerHand[2] == "Defense Card 4":
+                        card3_d = 250
+                if playerHand[2] == "Defense Card 5":
+                        card3_d = 300
+                        
+                if playerHand[3] == "Defense Card 1": #Slot 3 (Defense)
+                        card4_d = 100
+                if playerHand[3] == "Defense Card 2":
+                        card4_d = 150
+                if playerHand[3] == "Defense Card 3":
+                        card4_d = 200
+                if playerHand[3] == "Defense Card 4":
+                        card4_d = 250
+                if playerHand[3] == "Defense Card 5":
+                        card4_d = 300
+                
+                if playerHand[4] == "Special Card 1":
+                        damage_opp = 200
+                        you_gain = 100
+                if playerHand[4] == "Special Card 2":
+                        damage_opp = 300
+                        you_gain = 150
+                if playerHand[4] == "Special Card 4":
+                        opp_damage = 500
+                        you_gain = 500
+                #The other special cards require special attention and will be addressed with an if/elif statement
+                
+        if player == 2:
+                playerHand = Player2Hand #Unifying all the variables.
+                if playerHand[0] == "Attack Card 1": #Slot 0 (attack)
+                        card1_d = 100
+                if playerHand[0] == "Attack Card 2":
+                        card1_d = 150 #All of these are to give the argument something to use. So this function is the key
+                if playerHand[0] == "Attack Card 3":
+                        card1_d = 200
+                if playerHand[0] == "Attack Card 4":
+                        card1_d = 250
+                if playerHand[0] == "Attack Card 5":
+                        card1_d = 300
+                        
+                if playerHand[1] == "Attack Card 1": #Slot 1 (attack)
+                        card2_d = 100
+                if playerHand[1] == "Attack Card 2":
+                        card2_d = 150
+                if playerHand[1] == "Attack Card 3":
+                        card2_d = 200
+                if playerHand[1] == "Attack Card 4":
+                        card2_d = 250
+                if playerHand[1] == "Attack Card 5":
+                        card2_d = 300
+                        
+                if playerHand[2] == "Defense Card 1": #Slot 2 (Defense)
+                        card3_d = 100
+                if playerHand[2] == "Defense Card 2":
+                        card3_d = 150
+                if playerHand[2] == "Defense Card 3":
+                        card3_d = 200
+                if playerHand[2] == "Defense Card 4":
+                        card3_d = 250
+                if playerHand[2] == "Defense Card 5":
+                        card3_d = 300
+                        
+                if playerHand[3] == "Defense Card 1": #Slot 3 (Defense)
+                        card4_d = 100
+                if playerHand[3] == "Defense Card 2":
+                        card4_d = 150
+                if playerHand[3] == "Defense Card 3":
+                        card4_d = 200
+                if playerHand[3] == "Defense Card 4":
+                        card4_d = 250
+                if playerHand[3] == "Defense Card 5":
+                        card4_d = 300
+                
+                if playerHand[4] == "Special Card 1":
+                        opp_damage = 200
+                        you_gain = 100
+                if playerHand[4] == "Special Card 2":
+                        opp_damage = 300
+                        you_gain = 150
+                if playerHand[4] == "Special Card 4":
+                        opp_damage = 500
+                        you_gain = 500
+        
+def playerturn(player):
+        if player == 1:
+                player_Name = player1 #all conditions and vars if player 1
+                player_Health = p1_hp
+                player_Cash = p1_cp
+                player_Hand = Player1Hand
+                opp_Name = player2
+                opp_Health = p2_hp
+                opp_Cash = p2_cp
+                
+                
+        if player == 2:
+                player_Name = player2 #all conditions and vars if player 2
+                player_Health = p2_hp
+                player_Cash = p2_cp
+                player_Hand = Player2Hand
+                opp_Name = player1
+                opp_Health = p1_hp
+                opp_Cash = p1_cp
+        
+        
+        print ("Cards in your hand: ", player_Hand)
+        card_choice = int(input(player_Name + " Which card to play? [1/5] Enter 6 for the store."))
+        
+        if card_choice == 1: #Attack Cards
+                opp_Health -= card1_d #Hey! Who's the opponent? OK what's the damage value on the card?
+        if card_choice == 2:
+                opp_Health -= card2_d #I think there may be a problem fetching the cards from the players hands but we'll see
+        print (opp_Name, " now has ", str(opp_Health), " HP left")
+        bar()
+
+        if card_choice == 3: #Defense Cards
+                player_Health += card3_d #Hey! I'm adding that value to whoever I am
+        if card_choice == 4: 
+                player_Health += card4_d
+        print (player_Name, " now has ", str(player_Health), " HP left")
+        bar()
+        
+        if card_choice == 5: #Special Cards | Requires more attention
+                if player_Hand[4] == "Special Card 3": #And here is the special attention
+                        opp_Health = player_Health #Settling the Score
+                        print ("Both players have ", str(player_Health), " HP left")
+                if player_Hand[4] == "Special Card 5": 
+                        player_Health += opp_Health * 3 #And I take your stuff triple it and steal it. Bang Bang
+                        print (player_Name, " now has ", str(player_Health), " HP left")
+                else:
+                        player_Health += you_gain
+                        opp_Health -= opp_damage
+                print (opp_Name,"now has",str(opp_Health), " HP left")
+                print (player_Name,"now has",str(player_Health), " HP left")
+                bar()
+        if card_choice == 6:
+                print ("Welcome, Mr. President")
+                CardStore(player)
+
+
+
+        if card_choice < 6:
+            player_Hand[card_choice - 1] = "Empty"
+
+def gameover():
+    print("Checking for winner...")
+    bar()
+    if p1_hp <= 0: # Are you less than or equal to zero?
+        print("Game Over. Congratulations", player2, "You Win!") #Good job
+        input("Press enter to exit...")
+    elif p2_hp <= 0:
+        print("Game Over. Congratulations", player1, "You Win!")
+        input("Press enter to exit...")
+
+#These are the functions to assign cards from the card store
+#The card store will be split into separate functions
+#I'll let you know when it works
+
+def buying_card(type_of_card): #Which player and what number
+        global cardList
+        global costList
+    
+        if type_of_card == "a":
+                cardList = ["Attack Card 1", "Attack Card 2", "Attack Card 3", "Attack Card 4", "Attack Card 5"]
+                costList = [100, 200, 300, 400, 500]
+        if type_of_card == "d":
+                cardList = ["Defense Card 1", "Defense Card 2", "Defense Card 3", "Defense Card 4", "Defense Card 5"]
+                costList = [100, 200, 300, 400, 500]
+        if type_of_card == "s":
+                cardList = ["Special Card 1", "Special Card 2", "Special Card 3", "Special Card 4", "Special Card 5"]
+                costList = [200, 400, 600, 800, 1000]
+
+def CardStore(player): # UNDER DEVELOPMENT DOESN'T WORK. YOU CAN'T EVEN ACCESS THIS
+    if player == 1:
+        player_Name = player1        # A bunch of args 
+        player_Health = p1_hp
+        player_Cash = p1_cp
+        player_Hand = Player1Hand
+    else:
+        player_Name = player2
+        player_Health = p2_hp
+        player_Cash = p2_cp
+        player_Hand = Player2Hand
+                
+        print ("Welcome to the card store, " + player_Name) # Hey there you
+        
+    shopping = True
+        
+    while shopping == True:
+        print ("Your hand contains: ")
+        print (player_Hand)
+        print ("You have " + str(player_Cash) + "CP")
+        
+        card_slot = int(input("Which card slot to you want to replace? ")) # Which card slot am I replacing?
+
+        if card_slot == 1 or card_slot == 2: # Is it one of the attack slots?
+            acm() # show the attack cards
+            buying_card("a") # load the attack card buying function
+            card_buying = int(input("Which attack card do you want to buy? "))
+
+            card_cost = costList[card_buying - 1]  # A card_buying value of 1 returns costList[0], a card_buying value of 2 returns costList[1], etc.
+            if (player_Cash - card_cost) < 0:
+                print("Insufficient CP -- HP deducted by 100")
+                player_Health -= 100
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+            else:
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+                player_Cash -= card_cost
+
+        elif card_slot == 2 or card_slot == 3:
+            dcm()  # show the defence cards
+            buying_card("d") # load the defence card buying function
+            card_buying = int(input("Which defense card do you want to buy? "))
+
+            card_cost = costList[card_buying - 1]
+            if (player_Cash - card_cost) < 0:
+                print("Insufficient CP -- HP deducted by 100")
+                player_Health -= 100
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+            else:
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+                player_Cash -= card_cost
+
+        else:
+            scm()  # show the special cards
+            buying_card("s") # load the special card buying function
+            card_buying = int(input("Which special card do you want to buy? "))
+
+            card_cost = costList[card_buying - 1]
+            if (player_Cash - card_cost) < 0:
+                print("Insufficient CP -- HP deducted by 100")
+                player_Health -= 100
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+            else:
+                player_Hand[card_slot - 1] = cardList[card_buying - 1]
+                player_Cash -= card_cost
+                
+        DoneShopping = str(input("Are you done shopping? [y/n]"))
+
+        if DoneShopping.lower() == "y":
+            shopping = False
+                
+                       
+                               
+############################################################################### Ka-Chow this where the UI begins... Here
+"""The User Interface begins here. We get to call those arguments and what not. """
+In_Menu = True #The person is in the main menu
+while In_Menu == True: #While they are looking around...
+    print("Main Menu")
+    menu_nav = int(input("[1] Start New Game {2 Players Needed}\n"
+                        "[2] How To Play\n"
+                        "[3] View Changelog\n"))
+    if menu_nav == 1:
+        break # Let's get this party started!
+    elif menu_nav == 2:
+        manual()
+    elif menu_nav == 3:
+        changelog()
+    else:
+        print ("Invalid Option")
+
+print ("PyBattle Version 2.0 Beta | Created by Jeremiah Faison, Devan Cole, and ExXon^___O |")
+sleep(1)
+print ("Game Loading... Please Wait...")
+sleep(2)
+bar()
+player1 = str(input("Please enter Player 1's name ")) #TELL ME YOUR NAME
+player2 = str(input("Please enter Player 2's name "))
+bar()
+print ("Card Selection Begins Now")
+print ("Select 2 attack cards")
+bar()
+
+cardselect("Attack", 1) #Player one choose an atack card for me
+print ("OK, next attack card")
+cardselect("Attack", 1) #Pick a second one
+
+print ("Now let's pick defense cards")
+cardselect("Defense", 1) #Good. Now I need you to pick 2 defense
+print ("OK, next defense card")
+cardselect("Defense", 1)
+print ("Now the special card")
+specialcardselect(1)
+bar()
+
+#Player 2's card selection
+print ("Now it's ", player2, "'s turn to select cards")
+cardselect("Attack", 2) #Player two choose an atack card for me
+print ("OK, next attack card")
+cardselect("Attack", 2) #Pick a second one
+
+print ("Now let's pick defense cards")
+cardselect("Defense", 2) #Good. Now I need you to pick 2 defense
+print ("OK, next defense card")
+cardselect("Defense", 2) 
+
+print ("Now let's pick 1 special card")
+specialcardselect(2) #Your selection is over
+print (Player2Hand)
+print ("Assigning Cards and Values....")
+assign_vars(2)
+
+print ("Card Selection is over. Now to start the game!")
+
+#Game starts here
+while p1_hp > 0 and p2_hp > 0: #As long as both players HP is greater than 0
+        playerturn(1) #player one's turn
+        if p1_hp <= 0 or p2_hp <=0: #When one players health points gets to zero
+                gameover() #Who won?
+                break #OK, we can stop the back and forth
+        playerturn(2) #player 2 go
+        if p1_hp <= 0 or p2_hp <=0: 
+                gameover()
+                break
+
+#End of Game. 
